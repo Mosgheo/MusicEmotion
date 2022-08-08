@@ -160,7 +160,7 @@
 <#relax>
  a me:ActivityType;
  dc:title "Relaxing";
- rdfs:comment "an activity that aims to relax and chill". 
+ rdfs:comment "An activity that aims to relax and chill". 
 
 <#hobby>
  a me:ActivityType;
@@ -187,4 +187,4 @@
 <#celebrating>
  a me:ActivityType;
  dc:title "Celebrating";
- rdfs:comment "defines a celebration of any sort".
+ rdfs:comment "Defines a celebration of any sort".

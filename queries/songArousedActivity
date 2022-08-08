@@ -1,0 +1,39 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX mfoem: <http://purl.obolibrary.org/obo/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX me: <http://api.stardog.com/>
+
+SELECT DISTINCT
+(concat(?name," ",?surname) as ?fullName)
+?listenTo
+?artistName
+?activityName
+?activityDesc 
+?locationDesc 
+(group_concat(DISTINCT ?emotionPre;separator=" , ") as ?emotionsPre)
+(group_concat(DISTINCT ?emotionAroused;separator=" , ") as ?emotionsPost)  WHERE {
+     
+    ?listening me:listenTo ?song;
+        me:arouses/ mfoem:MFOEM_000165 ?emotionAroused;
+        me:whileDoing ?activity;
+        me:hasLocation ?location;
+        foaf:name ?name;
+        foaf:familyName ?surname.
+    
+    OPTIONAL {?listening me:hasEmotionPre/mfoem:MFOEM_000165 ?emotionPre}
+    OPTIONAL {?listening me:hasEmotionPost/mfoem:MFOEM_000165 ?emotionPost}
+
+    ?song dc:title ?listenTo;
+        foaf:maker/foaf:name ?artistName.
+    
+    ?activity dc:description ?activityDesc;
+        me:hasType/dc:title ?activityName.
+    
+    ?location dc:description ?locationDesc.
+
+} GROUP BY ?listenTo ?name ?surname ?activityName ?activityDesc ?artistName ?whileDoing ?locationDesc

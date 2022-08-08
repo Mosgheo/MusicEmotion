@@ -1,0 +1,29 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX mfoem: <http://purl.obolibrary.org/obo/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX me: <http://api.stardog.com/>
+
+SELECT 
+?songTitle 
+?artistName  
+(group_concat(DISTINCT ?emotionPre;separator=" , ") as ?emotionsPre)
+(group_concat(DISTINCT ?emotionAroused;separator=" , ") as ?emotionsPost)
+?desc 
+WHERE {
+  ?listening me:arouses ?someEmotion;
+    me:whileDoing/me:hasType/dc:title "Work";
+    me:whileDoing/dc:description ?desc;
+    me:listenTo/dc:title ?songTitle;
+    me:listenTo/foaf:maker/foaf:name ?artistName.
+    
+  ?someEmotion mfoem:MFOEM_000165 ?emotionAroused.
+  
+  OPTIONAL {?listening me:hasEmotionPre/mfoem:MFOEM_000165 ?emotionPre}
+  OPTIONAL {?listening me:hasEmotionPost/mfoem:MFOEM_000165 ?emotionAroused}
+    
+} GROUP BY ?songTitle ?artistName ?desc

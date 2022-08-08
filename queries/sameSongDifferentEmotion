@@ -1,0 +1,35 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX mo: <http://purl.org/ontology/mo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+prefix me: <http://api.stardog.com/>
+prefix mfoem: <http://purl.obolibrary.org/obo/>
+prefix obo: <http://purl.obolibrary.org/obo/>
+
+SELECT DISTINCT
+ ?listenTo
+ ?artistName
+ (group_concat(DISTINCT ?arousedEmotion;separator=" , ") as ?arousedEmotions)  WHERE {
+     
+    ?listening me:listenTo ?song;
+        me:arouses/mfoem:MFOEM_000165 ?arousedEmotion;
+        foaf:name ?name;
+        foaf:familyName ?surname.
+
+    ?song dc:title ?listenTo;
+        foaf:maker/foaf:name ?artistName.
+    
+  FILTER (EXISTS{?someListening me:listenTo ?song;
+                            me:arouses/rdfs:subClassOf ?someEmotion;
+                            }
+  && EXISTS{?someListening2 me:listenTo ?song;
+                            me:arouses/rdfs:subClassOf ?someEmotion;
+                            }).
+    
+  ?someEmotion mfoem:MFOEM_000165 ?arousedEmotion.
+  
+
+} GROUP BY ?listenTo ?artistName
+ORDER BY DESC(COUNT(?arousedEmotion))
